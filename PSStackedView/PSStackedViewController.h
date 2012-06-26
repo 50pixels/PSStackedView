@@ -159,4 +159,6 @@ enum {
 @property(nonatomic, assign) UINavigationBar *navigationBar;
 #endif
 
+-(void)update;
+
 @end

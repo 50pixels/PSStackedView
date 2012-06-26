@@ -242,18 +242,20 @@ typedef void(^PSSVSimpleBlock)(void);
 
 - (CGRect)viewRect {
     // self.view.frame not used, it's wrong in viewWillAppear
-    CGRect viewRect = [[UIScreen mainScreen] applicationFrame];
+    CGRect viewRect = self.view.frame;
     return viewRect;
 }
 
 // return screen width
 - (CGFloat)screenWidth {
+    return [self viewRect].size.width;
     CGRect viewRect = [self viewRect];
     CGFloat screenWidth = PSIsLandscape() ? viewRect.size.height : viewRect.size.width;
     return screenWidth;
 }
 
 - (CGFloat)screenHeight {
+    return [self viewRect].size.height;
     CGRect viewRect = [self viewRect];
     NSUInteger screenHeight = PSIsLandscape() ? viewRect.size.width : viewRect.size.height;
     return screenHeight;
@@ -271,6 +273,14 @@ typedef void(^PSSVSimpleBlock)(void);
         totalStackWidth += controller.containerView.width;
     }
     return totalStackWidth;
+}
+
+-(void)update
+{
+    for (UIViewController *controller in self.viewControllers) {
+        PSSVContainerView *v = [controller containerView];
+        v.height = [self screenHeight];
+    }
 }
 
 // menu is only collapsable if stack is large enough
@@ -999,12 +1009,13 @@ enum {
     NSUInteger leftGap = [self totalStackWidth] + [self minimalLeftInset];    
     container.left = leftGap;
     container.width = viewController.view.width;
-    container.autoresizingMask = UIViewAutoresizingFlexibleHeight; // width is not flexible!
-    container.shadowWidth = defaultShadowWidth_;
-    container.shadowAlpha = defaultShadowAlpha_;
+    container.shadow = PSSVSideNone;
+    
+    //container.autoresizingMask = UIViewAutoresizingFlexibleHeight; // width is not flexible!
+    //container.shadowWidth = defaultShadowWidth_;
+    //container.shadowAlpha = defaultShadowAlpha_;
     container.cornerRadius = cornerRadius_;
     [container limitToMaxWidth:[self maxControllerWidth]];
-    PSSVLog(@"container frame: %@", NSStringFromCGRect(container.frame));
     
     // relay willAppear and add to subview
     [viewController viewWillAppear:animated];
@@ -1030,8 +1041,8 @@ enum {
     
     // properly sizes the scroll view contents (for table view scrolling)
     [container layoutIfNeeded];
-    //container.width = viewController.view.width; // sync width (after it may has changed in layoutIfNeeded)
-    
+    container.width = viewController.view.width; // sync width (after it may has changed in layoutIfNeeded)
+    container.height = viewController.view.height;
     [viewController viewDidAppear:animated];
     [viewControllers_ addObject:viewController];
     

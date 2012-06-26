@@ -78,6 +78,7 @@
 - (void)dealloc {
     [self removeMask];
     self.shadow = PSSVSideNone; // TODO needed?
+    [super dealloc];
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,6 +93,7 @@
         aFrame.size.height = frame.size.height;
         layer.frame = aFrame;
     }
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -228,4 +230,10 @@
     return transparentView_.alpha;
 }
 
+
+-(void)layoutSubviews
+{
+    [super layoutSubviews];
+
+}
 @end
